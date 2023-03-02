@@ -26,7 +26,7 @@ function getKoalas(){
         <td>${koala.ready_to_transfer}</td>
         <td>${koala.notes}</td>
         <td><button>Ready for Transfer</button></td>
-        <td><button>Delete</button></td>
+        <td><button onClick="deleteKoala(${koala.id})">Delete</button></td>
       </tr>
       `;
     }   
@@ -64,6 +64,17 @@ function saveKoala(){
     alert('Something went wrong.');
   })
  
+}
+
+function deleteKoala(index) {
+  console.log(`Deleting koala at ${index}`);
+  axios.delete(`/koalas/${index}`).then((response) => {
+    console.log(response);
+    getKoalas();
+  }).catch((error) => {
+        console.log(error);
+        alert('Something went wrong!');
+  });
 }
 
 getKoalas();

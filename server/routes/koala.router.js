@@ -73,5 +73,10 @@ koalaRouter.post('/', (req, res) => {
 
 
 // DELETE
-
+koalaRouter.delete('/:id', (req, res) => {
+    const deleteId = Number(req.params.id);
+    koalaList = koalaList.filter((koala) => koala.id !== deleteId);
+    console.log(koalaList);
+    res.sendStatus(200);
+});
 module.exports = koalaRouter;
