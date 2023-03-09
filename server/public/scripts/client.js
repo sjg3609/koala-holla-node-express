@@ -24,7 +24,7 @@ function getKoalas(){
         <td>${koala.ready_to_transfer}</td>
         <td>${koala.notes}</td>
         <td><button onClick="transferKoala(${koala.id}, 'Y')">Toggle Transfer Status</button></td>
-        <td><button onClick="deleteKoala(${koala.id})">Delete</button></td>
+        <td><button onClick="confimationButton(${koala.id})">Delete</button></td>
       </tr>
       `;
       }else if(koala.ready_to_transfer === 'Y'){
@@ -36,7 +36,7 @@ function getKoalas(){
         <td>${koala.ready_to_transfer}</td>
         <td>${koala.notes}</td>
         <td><button onClick="transferKoala(${koala.id}, 'N')">Toggle Transfer Status</button></td>
-        <td><button onClick="deleteKoala(${koala.id})">Delete</button></td>
+        <td><button onClick="confimationButton(${koala.id})">Delete</button></td>
       </tr>
       `;
       }
@@ -47,6 +47,27 @@ function getKoalas(){
   });
   
 } // end getKoalas
+
+function confimationButton(id) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "The Koala will be gone forever!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteKoala(id);
+      Swal.fire(
+        'Deleted!',
+        'The Koala has been deleted.',
+        'success'
+      )
+    }
+  });
+}
 
 function saveKoala(){
   console.log( 'in saveKoala' );
