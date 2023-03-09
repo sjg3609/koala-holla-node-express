@@ -7,7 +7,7 @@ const pool = require('../modules/pool.js');
 // GET
 koalaRouter.get('/', (req, res) => {
     console.log('GET request made to /koalas');
-    let queryText = `SELECT * FROM "koalas"`;
+    let queryText = `SELECT * FROM "koalas" ORDER BY "id" ASC`;
     pool.query(queryText).then((result) => {
         res.send(result.rows);
     }).catch((error) => {
@@ -31,18 +31,31 @@ koalaRouter.post('/', (req, res) => {
 });
 
 // PUT
-koalaRouter.put('/:id', (req, res) => {
+koalaRouter.put('/transfer/:id', (req, res) => {
     console.log(`In PUT request /koalas`);
     let koalaId = Number(req.params.id);
     let koalaToEdit = req.params.body;
-    let queryText = `UPDATE "koalas" SET ("ready_to_transfer") VALUES ('Y') WHERE "id" = $1`;
+    let queryText = `UPDATE "koalas" SET "ready_to_transfer" = 'Y' WHERE "id" = $1`;
     pool.query(queryText, [koalaId]).then((result) => {
         res.sendStatus(200);
     }).catch((error) => {
         console.log(`Error trying to PUT ${error}`);
         res.sendStatus(500);
-    })
-})
+    });
+});
+
+koalaRouter.put('/untransfer/:id', (req, res) => {
+    console.log(`In PUT request /koalas`);
+    let koalaId = Number(req.params.id);
+    let koalaToEdit = req.params.body;
+    let queryText = `UPDATE "koalas" SET "ready_to_transfer" = 'N' WHERE "id" = $1`;
+    pool.query(queryText, [koalaId]).then((result) => {
+        res.sendStatus(200);
+    }).catch((error) => {
+        console.log(`Error trying to PUT ${error}`);
+        res.sendStatus(500);
+    });
+});
 
 // DELETE
 koalaRouter.delete('/:id', (req, res) => {
@@ -55,4 +68,5 @@ koalaRouter.delete('/:id', (req, res) => {
         res.sendStatus(500);
     });
 });
+
 module.exports = koalaRouter;

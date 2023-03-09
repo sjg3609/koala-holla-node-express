@@ -6,8 +6,6 @@ document.querySelector('#genderIn').value = '';
 document.querySelector('#readyForTransferIn').value = '';
 document.querySelector('#notesIn').value = '';
 
-let i = 6;
-
 function getKoalas(){
   console.log( 'in getKoalas' );
   // axios call to server to get koalas
@@ -16,19 +14,32 @@ function getKoalas(){
     console.log(response);
     let koalas = response.data;
     koalaTable.innerHTML = '';
-
     for(let koala of koalas) {
-      koalaTable.innerHTML += `
+      if(koala.ready_to_transfer === 'N'){
+        koalaTable.innerHTML += `
       <tr>
         <td>${koala.name}</td>
         <td>${koala.age}</td>
         <td>${koala.gender}</td>
         <td>${koala.ready_to_transfer}</td>
         <td>${koala.notes}</td>
-        <td><button>Ready for Transfer</button></td>
+        <td><button onClick="transferKoala(${koala.id}, 'Y')">Toggle Transfer Status</button></td>
         <td><button onClick="deleteKoala(${koala.id})">Delete</button></td>
       </tr>
       `;
+      }else if(koala.ready_to_transfer === 'Y'){
+        koalaTable.innerHTML += `
+      <tr>
+        <td>${koala.name}</td>
+        <td>${koala.age}</td>
+        <td>${koala.gender}</td>
+        <td>${koala.ready_to_transfer}</td>
+        <td>${koala.notes}</td>
+        <td><button onClick="transferKoala(${koala.id}, 'N')">Toggle Transfer Status</button></td>
+        <td><button onClick="deleteKoala(${koala.id})">Delete</button></td>
+      </tr>
+      `;
+      }
     }   
   }).catch((error) => {
     console.log(error);
@@ -39,18 +50,15 @@ function getKoalas(){
 
 function saveKoala(){
   console.log( 'in saveKoala' );
-  i++;
-  let id = i;
   let name = document.querySelector('#nameIn').value;
   let age = document.querySelector('#ageIn').value;
   let gender = document.querySelector('#genderIn').value;
   let ready_to_transfer = document.querySelector('#readyForTransferIn').value;
   let notes = document.querySelector('#notesIn').value;
   let koalasToAdd = {
-    id: id,
     name: name,
     age: age,
-    gender:gender,
+    gender: gender,
     ready_to_transfer: ready_to_transfer,
     notes: notes
   };
@@ -75,6 +83,28 @@ function deleteKoala(index) {
         console.log(error);
         alert('Something went wrong!');
   });
+}
+
+function transferKoala(index, newTransferStatus) {
+  console.log(`Updating transfer status for koala with id: ${index}`);
+  if(newTransferStatus === 'Y'){
+    axios.put(`/koalas/transfer/${index}`).then((response) => {
+      console.log(response);
+      getKoalas();
+    }).catch((error) => {
+          console.log(error);
+          alert('Something went wrong!');
+    });
+  }
+  else if(newTransferStatus === 'N'){
+    axios.put(`/koalas/untransfer/${index}`).then((response) => {
+      console.log(response);
+      getKoalas();
+    }).catch((error) => {
+          console.log(error);
+          alert('Something went wrong!');
+    });
+  }
 }
 
 getKoalas();
