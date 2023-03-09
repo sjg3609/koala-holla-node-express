@@ -1,82 +1,58 @@
 const express = require('express');
 const koalaRouter = express.Router();
-
-let koalaList = [
-    {
-        id: 1,
-        name: 'Scotty',
-        gender: 'M',
-        age: 4,
-        ready_to_transfer: 'Y',
-        notes: 'Born in Guatamala'
-    },
-    {
-        id: 2,
-        name: 'Jean',
-        gender: 'F',
-        age: 5,
-        ready_to_transfer: 'Y',
-        notes: 'Allergic to lots of lava'
-    },
-    {
-        id: 3,
-        name: 'Ororo',
-        gender: 'F',
-        age: 7,
-        ready_to_transfer: 'N',
-        notes: 'Loves listening to Paula (Abdul)'
-    },
-    {
-        id: 4,
-        name: 'Logan',
-        gender: 'M',
-        age: 15,
-        ready_to_transfer: 'N',
-        notes: 'Loves the sauna'
-    },
-    {
-        id: 5,
-        name: 'Charlie',
-        gender: 'M',
-        age: 9,
-        ready_to_transfer: 'Y',
-        notes: 'Favorite band is Nirvana'
-    },
-    {
-        id: 6,
-        name: 'Betsy',
-        gender: 'F',
-        age: 4,
-        ready_to_transfer: 'Y',
-        notes: 'Has a pet iguana'
-    }
-]
+const pool = require('../modules/pool.js');
 
 // DB CONNECTION
-
 
 // GET
 koalaRouter.get('/', (req, res) => {
     console.log('GET request made to /koalas');
-    res.send(koalaList);
+    let queryText = `SELECT * FROM "koalas"`;
+    pool.query(queryText).then((result) => {
+        res.send(result.rows);
+    }).catch((error) => {
+        console.log(`Error trying to GET ${error}`);
+        res.sendStatus(500);
+    })
 });
 
 // POST
 koalaRouter.post('/', (req, res) => {
-   console.log('POST Request for /koalas') ;
+   console.log('POST Request for /koalas');
    let newKoala = req.body;
-   koalaList.push(newKoala);
-   res.sendStatus(201);
+   let queryText = `INSERT INTO "koalas" ("name", "gender", "age", "ready_to_transfer", "notes")
+                    VALUES ($1, $2, $3, $4, $5);`;
+    pool.query(queryText, [newKoala.name, newKoala.gender, newKoala.age, newKoala.ready_to_transfer, newKoala.notes]).then((result) => {
+        res.sendStatus(201);
+    }).catch((error) => {
+        console.log(`Error trying to POST ${error}`);
+    })
+    
 });
 
 // PUT
-
+koalaRouter.put('/:id', (req, res) => {
+    console.log(`In PUT request /koalas`);
+    let koalaId = Number(req.params.id);
+    let koalaToEdit = req.params.body;
+    let queryText = `UPDATE "koalas" SET ("ready_to_transfer") VALUES ('Y') WHERE "id" = $1`;
+    pool.query(queryText, [koalaId]).then((result) => {
+        res.sendStatus(200);
+    }).catch((error) => {
+        console.log(`Error trying to PUT ${error}`);
+        res.sendStatus(500);
+    })
+})
 
 // DELETE
 koalaRouter.delete('/:id', (req, res) => {
     const deleteId = Number(req.params.id);
-    koalaList = koalaList.filter((koala) => koala.id !== deleteId);
-    console.log(koalaList);
-    res.sendStatus(200);
+    let queryText = `DELETE FROM "koalas" WHERE "id" = $1;`;
+    pool.query(queryText, [deleteId]).then((result) => {
+        res.sendStatus(200);
+    }).catch((error) => {
+        console.log(`Error in DELETE ${error}`);
+        res.sendStatus(500);
+    });
 });
 module.exports = koalaRouter;
